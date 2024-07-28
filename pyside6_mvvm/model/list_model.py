@@ -1,6 +1,7 @@
 from PySide6.QtCore import QAbstractListModel, Qt, QModelIndex
 import qtawesome as qta
 
+
 class ListModel(QAbstractListModel):
     def __init__(self, items, parent=None):
         super().__init__(parent)

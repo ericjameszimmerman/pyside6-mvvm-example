@@ -1,6 +1,14 @@
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import (
-    QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QCheckBox, QSpinBox, QPushButton, QWidget
+    QDialog,
+    QVBoxLayout,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QCheckBox,
+    QSpinBox,
+    QPushButton,
+    QWidget,
 )
 from PySide6.QtCharts import QChart, QChartView, QLineSeries
 from PySide6.QtCore import Qt, QTimer, QDateTime
@@ -11,7 +19,6 @@ class MotorDriveView(QWidget):
         super().__init__()
         self._viewmodel = viewmodel
         self.setWindowTitle("Motor Drive Simulator")
-        #self.setGeometry(100, 100, 800, 600)
 
         layout = QVBoxLayout(self)
 
@@ -129,5 +136,5 @@ class MotorDriveView(QWidget):
         self.chart.axes(Qt.Horizontal)[0].hide()
         min_frequency = min(f for t, f in self.data_points) if self.data_points else 0
         max_frequency = max(f for t, f in self.data_points) if self.data_points else 0
-        #self.chart.axes(Qt.Vertical)[0].setRange(min_frequency, max_frequency)
+        # self.chart.axes(Qt.Vertical)[0].setRange(min_frequency, max_frequency)
         self.chart.axes(Qt.Vertical)[0].setRange(-65, 65)

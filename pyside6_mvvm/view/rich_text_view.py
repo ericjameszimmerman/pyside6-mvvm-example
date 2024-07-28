@@ -22,23 +22,23 @@ class RichTextView(QWidget):
         # Toolbar
         toolbar = QToolBar()
 
-        bold_action = QAction(qta.icon('fa.bold'), "", self)
+        bold_action = QAction(qta.icon("fa.bold"), "", self)
         bold_action.triggered.connect(lambda: self._viewmodel.formatText("bold"))
         toolbar.addAction(bold_action)
 
-        italic_action = QAction(qta.icon('fa.italic'), "", self)
+        italic_action = QAction(qta.icon("fa.italic"), "", self)
         italic_action.triggered.connect(lambda: self._viewmodel.formatText("italic"))
         toolbar.addAction(italic_action)
 
-        underline_action = QAction(qta.icon('fa.underline'), "", self)
+        underline_action = QAction(qta.icon("fa.underline"), "", self)
         underline_action.triggered.connect(lambda: self._viewmodel.formatText("underline"))
         toolbar.addAction(underline_action)
 
-        increase_font_action = QAction(qta.icon('fa.plus'), "", self)
+        increase_font_action = QAction(qta.icon("fa.plus"), "", self)
         increase_font_action.triggered.connect(self._viewmodel.increaseFontSize)
         toolbar.addAction(increase_font_action)
 
-        decrease_font_action = QAction(qta.icon('fa.minus'), "", self)
+        decrease_font_action = QAction(qta.icon("fa.minus"), "", self)
         decrease_font_action.triggered.connect(self._viewmodel.decreaseFontSize)
         toolbar.addAction(decrease_font_action)
 

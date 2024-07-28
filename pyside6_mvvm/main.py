@@ -2,8 +2,19 @@ import qtawesome as qta
 from PySide6.QtCore import Qt, QStringListModel, QModelIndex
 from PySide6.QtGui import QIcon, QAction
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QSplitter, QListView, QVBoxLayout,
-    QLabel, QWidget, QToolBar, QStatusBar, QMenuBar, QHBoxLayout, QMessageBox, QStackedWidget
+    QApplication,
+    QMainWindow,
+    QSplitter,
+    QListView,
+    QVBoxLayout,
+    QLabel,
+    QWidget,
+    QToolBar,
+    QStatusBar,
+    QMenuBar,
+    QHBoxLayout,
+    QMessageBox,
+    QStackedWidget,
 )
 import sys
 import model
@@ -31,12 +42,12 @@ class MainWindow(QMainWindow):
 
         # Main layout
         main_layout = QHBoxLayout(self)
-        
+
         # List Model
         self.items = [
             model.ItemModel("Drive Simulator", "fa.scissors", "simulator"),
             model.ItemModel("Rich Text", "fa.copy", "richtext"),
-            model.ItemModel("Dummy", "fa.paste", "dummy2")
+            model.ItemModel("Dummy", "fa.paste", "dummy2"),
         ]
 
         # Create the ViewModel
@@ -45,12 +56,7 @@ class MainWindow(QMainWindow):
         # Create the LeftPaneView view
         self.left_pane_view = view.LeftPaneView(list_viewmodel)
 
-        #self.view_models = [viewmodel.ItemViewModel(item) for item in self.items]
-        #self.model = QStringListModel([vm.get_name() for vm in self.view_models])
-        
         # Left Pane: List View
-        #self.left_pane_view = view.LeftPaneView()
-        #self.left_pane_view.setModel(self.model)
         main_layout.addWidget(self.left_pane_view)
 
         self.initialize_views()
@@ -64,14 +70,14 @@ class MainWindow(QMainWindow):
         # File Menu
         file_menu = menu_bar.addMenu("&File")
 
-        new_action = QAction(qta.icon('fa5s.file', color=icon_color), "New", self)
+        new_action = QAction(qta.icon("fa5s.file", color=icon_color), "New", self)
         new_action.setShortcut("Ctrl+N")
-        open_action = QAction(qta.icon('fa5s.folder-open', color=icon_color), "Open", self)
+        open_action = QAction(qta.icon("fa5s.folder-open", color=icon_color), "Open", self)
         open_action.setShortcut("Ctrl+O")
-        save_action = QAction(qta.icon('fa5s.save', color=icon_color), "Save", self)
+        save_action = QAction(qta.icon("fa5s.save", color=icon_color), "Save", self)
         save_action.setShortcut("Ctrl+S")
-        save_as_action = QAction(qta.icon('fa5s.save', color=icon_color), "Save As", self)
-        exit_action = QAction(qta.icon('fa5s.sign-out-alt', color=icon_color), "Exit", self)
+        save_as_action = QAction(qta.icon("fa5s.save", color=icon_color), "Save As", self)
+        exit_action = QAction(qta.icon("fa5s.sign-out-alt", color=icon_color), "Exit", self)
         exit_action.setShortcut("Ctrl+Q")
         exit_action.triggered.connect(self.close)
 
@@ -85,15 +91,15 @@ class MainWindow(QMainWindow):
         # Edit Menu
         edit_menu = menu_bar.addMenu("&Edit")
 
-        undo_action = QAction(qta.icon('fa5s.undo', color=icon_color), "Undo", self)
+        undo_action = QAction(qta.icon("fa5s.undo", color=icon_color), "Undo", self)
         undo_action.setShortcut("Ctrl+Z")
-        redo_action = QAction(qta.icon('fa5s.redo', color=icon_color), "Redo", self)
+        redo_action = QAction(qta.icon("fa5s.redo", color=icon_color), "Redo", self)
         redo_action.setShortcut("Ctrl+Y")
-        cut_action = QAction(qta.icon('fa5s.cut', color=icon_color), "Cut", self)
+        cut_action = QAction(qta.icon("fa5s.cut", color=icon_color), "Cut", self)
         cut_action.setShortcut("Ctrl+X")
-        copy_action = QAction(qta.icon('fa5s.copy', color=icon_color), "Copy", self)
+        copy_action = QAction(qta.icon("fa5s.copy", color=icon_color), "Copy", self)
         copy_action.setShortcut("Ctrl+C")
-        paste_action = QAction(qta.icon('fa5s.paste', color=icon_color), "Paste", self)
+        paste_action = QAction(qta.icon("fa5s.paste", color=icon_color), "Paste", self)
         paste_action.setShortcut("Ctrl+V")
 
         edit_menu.addAction(undo_action)
@@ -106,7 +112,7 @@ class MainWindow(QMainWindow):
         # Settings Menu
         settings_menu = menu_bar.addMenu("Settings")
 
-        preferences_action = QAction(qta.icon('fa5s.cog', color=icon_color), "Preferences", self)
+        preferences_action = QAction(qta.icon("fa5s.cog", color=icon_color), "Preferences", self)
         preferences_action.triggered.connect(self.show_settings_dialog)
 
         settings_menu.addAction(preferences_action)
@@ -114,7 +120,7 @@ class MainWindow(QMainWindow):
         # Help Menu
         help_menu = menu_bar.addMenu("Help")
 
-        about_action = QAction(qta.icon('fa5s.info-circle', color=icon_color), "About", self)
+        about_action = QAction(qta.icon("fa5s.info-circle", color=icon_color), "About", self)
         about_action.triggered.connect(self.show_about_dialog)
 
         help_menu.addAction(about_action)
@@ -138,7 +144,6 @@ class MainWindow(QMainWindow):
         # Connect selection change signal to the view model
         self.left_pane_view.selectionModel().currentChanged.connect(self.on_item_selected)
 
-
     def initialize_views(self):
         self.drive_model = model.MotorDriveModel()
         drive_viewmodel = viewmodel.MotorDriveViewModel(self.drive_model)
@@ -152,13 +157,6 @@ class MainWindow(QMainWindow):
         self.view_lookup["richtext"] = rich_view
         self.stacked_widget.addWidget(rich_view)
 
-        #self.dummy1 = model.DummyModel()
-        #self.dummy1.data = "Eric is Cool"
-        #dummy1_viewmodel = viewmodel.DummyViewModel(self.dummy1)
-        #dummy1_view = view.DummyView(dummy1_viewmodel)
-        #self.view_lookup["dummy1"] = dummy1_view
-        #self.stacked_widget.addWidget(dummy1_view)
-
         self.dummy2 = model.DummyModel()
         self.dummy2.data = "Dummy 2"
         dummy2_viewmodel = viewmodel.DummyViewModel(self.dummy2)
@@ -167,7 +165,11 @@ class MainWindow(QMainWindow):
         self.stacked_widget.addWidget(dummy2_view)
 
     def show_about_dialog(self):
-        QMessageBox.about(self, "About", "This is a sample application with a menu bar created using PySide6.")
+        QMessageBox.about(
+            self,
+            "About",
+            "This is a sample application with a menu bar created using PySide6.",
+        )
 
     def show_settings_dialog(self):
         settings = model.SettingsModel()
@@ -192,8 +194,8 @@ class MainWindow(QMainWindow):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
-    theme = view.themes.DarkTheme(app)
-    #theme = view.themes.LightTheme(app)
+    # theme = view.themes.DarkTheme(app)
+    theme = view.themes.LightTheme(app)
     window = MainWindow(theme)
     app.aboutToQuit.connect(window.on_about_to_quit)
     window.show()
