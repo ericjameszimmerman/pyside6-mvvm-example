@@ -11,7 +11,7 @@ class MotorDriveView(QWidget):
         super().__init__()
         self._viewmodel = viewmodel
         self.setWindowTitle("Motor Drive Simulator")
-        self.setGeometry(100, 100, 800, 600)
+        #self.setGeometry(100, 100, 800, 600)
 
         layout = QVBoxLayout(self)
 

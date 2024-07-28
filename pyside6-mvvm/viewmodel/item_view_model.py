@@ -10,3 +10,6 @@ class ItemViewModel:
 
     def get_content(self):
         return f"Content for {self.model.name}"
+
+    def get_view_id(self):
+        return self.model.view_id

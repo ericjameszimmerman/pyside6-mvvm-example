@@ -3,7 +3,7 @@ from PySide6.QtCore import Qt, QStringListModel, QModelIndex
 from PySide6.QtGui import QIcon, QAction
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QSplitter, QListView, QVBoxLayout,
-    QLabel, QWidget, QToolBar, QStatusBar, QMenuBar, QHBoxLayout, QMessageBox
+    QLabel, QWidget, QToolBar, QStatusBar, QMenuBar, QHBoxLayout, QMessageBox, QStackedWidget
 )
 import sys
 import model
@@ -21,6 +21,10 @@ class MainWindow(QMainWindow):
         self.theme = theme
         icon_color = self.theme.default_text_color
 
+        # Create the QStackedWidget to hold the views
+        self.stacked_widget = QStackedWidget()
+        self.view_lookup = {}
+
         # Central Widget
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -30,9 +34,9 @@ class MainWindow(QMainWindow):
         
         # List Model
         self.items = [
-            model.ItemModel("Item 1", "icons/fruit.png"),
-            model.ItemModel("Item 2", "icons/flag.png"),
-            model.ItemModel("Item 3", "icons/hamburger.png")
+            model.ItemModel("Drive Simulator", "icons/fruit.png", "simulator"),
+            model.ItemModel("Item 2", "icons/flag.png", "dummy1"),
+            model.ItemModel("Item 3", "icons/hamburger.png", "dummy2")
         ]
         self.view_models = [viewmodel.ItemViewModel(item) for item in self.items]
         self.model = QStringListModel([vm.get_name() for vm in self.view_models])
@@ -42,16 +46,9 @@ class MainWindow(QMainWindow):
         self.left_pane_view.setModel(self.model)
         main_layout.addWidget(self.left_pane_view)
 
-        # Right Pane: Content Area
-        self.content_view = view.ContentView()
-        #main_layout.addWidget(self.content_view)
+        self.initialize_views()
 
-
-        self.drive_model = model.MotorDriveModel()
-        drive_viewmodel = viewmodel.MotorDriveViewModel(self.drive_model)
-        simulator = view.MotorDriveView(drive_viewmodel)
-
-        main_layout.addWidget(simulator)
+        main_layout.addWidget(self.stacked_widget)
         central_widget.setLayout(main_layout)
 
         # Create the menu bar
@@ -140,6 +137,27 @@ class MainWindow(QMainWindow):
         # Initialize the right pane with the first item's content
         self.left_pane_view.setCurrentIndex(self.model.index(0, 0))
 
+    def initialize_views(self):
+        self.drive_model = model.MotorDriveModel()
+        drive_viewmodel = viewmodel.MotorDriveViewModel(self.drive_model)
+        simulator = view.MotorDriveView(drive_viewmodel)
+        self.view_lookup["simulator"] = simulator
+        self.stacked_widget.addWidget(simulator)
+
+        self.dummy1 = model.DummyModel()
+        self.dummy1.data = "Eric is Cool"
+        dummy1_viewmodel = viewmodel.DummyViewModel(self.dummy1)
+        dummy1_view = view.DummyView(dummy1_viewmodel)
+        self.view_lookup["dummy1"] = dummy1_view
+        self.stacked_widget.addWidget(dummy1_view)
+
+        self.dummy2 = model.DummyModel()
+        self.dummy2.data = "Dummy 2"
+        dummy2_viewmodel = viewmodel.DummyViewModel(self.dummy2)
+        dummy2_view = view.DummyView(dummy2_viewmodel)
+        self.view_lookup["dummy2"] = dummy2_view
+        self.stacked_widget.addWidget(dummy2_view)
+
     def show_about_dialog(self):
         QMessageBox.about(self, "About", "This is a sample application with a menu bar created using PySide6.")
 
@@ -151,8 +169,13 @@ class MainWindow(QMainWindow):
 
     def on_item_selected(self, current: QModelIndex, previous: QModelIndex):
         index = current.row()
-        self.content_view.display_content(self.view_models[index].get_content())
-        self.status_bar.showMessage(f"Selected {self.view_models[index].get_name()}")
+        selected_view_model = self.view_models[index]
+        if selected_view_model:
+            view_id = selected_view_model.get_view_id()
+            view_ref = self.view_lookup[view_id]
+            if view_ref:
+                self.stacked_widget.setCurrentWidget(view_ref)
+            self.status_bar.showMessage(f"Selected {selected_view_model.get_name()}")
 
     def update_icons(self):
         for index, view_model in enumerate(self.view_models):
