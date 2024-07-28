@@ -13,12 +13,13 @@ from view.widget import IconLabel
 
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, theme):
         super().__init__()
 
         self.setWindowTitle("MVVM Example with PySide6")
         self.resize(800, 600)
-        self.icon_color = "white"
+        self.theme = theme
+        icon_color = self.theme.default_text_color
 
         # Central Widget
         central_widget = QWidget()
@@ -43,8 +44,14 @@ class MainWindow(QMainWindow):
 
         # Right Pane: Content Area
         self.content_view = view.ContentView()
-        main_layout.addWidget(self.content_view)
+        #main_layout.addWidget(self.content_view)
 
+
+        self.drive_model = model.MotorDriveModel()
+        drive_viewmodel = viewmodel.MotorDriveViewModel(self.drive_model)
+        simulator = view.MotorDriveView(drive_viewmodel)
+
+        main_layout.addWidget(simulator)
         central_widget.setLayout(main_layout)
 
         # Create the menu bar
@@ -53,14 +60,14 @@ class MainWindow(QMainWindow):
         # File Menu
         file_menu = menu_bar.addMenu("File")
 
-        new_action = QAction(qta.icon('fa5s.file', color=self.icon_color), "New", self)
+        new_action = QAction(qta.icon('fa5s.file', color=icon_color), "New", self)
         new_action.setShortcut("Ctrl+N")
-        open_action = QAction(qta.icon('fa5s.folder-open', color=self.icon_color), "Open", self)
+        open_action = QAction(qta.icon('fa5s.folder-open', color=icon_color), "Open", self)
         open_action.setShortcut("Ctrl+O")
-        save_action = QAction(qta.icon('fa5s.save', color=self.icon_color), "Save", self)
+        save_action = QAction(qta.icon('fa5s.save', color=icon_color), "Save", self)
         save_action.setShortcut("Ctrl+S")
-        save_as_action = QAction(qta.icon('fa5s.save', color=self.icon_color), "Save As", self)
-        exit_action = QAction(qta.icon('fa5s.sign-out-alt', color=self.icon_color), "Exit", self)
+        save_as_action = QAction(qta.icon('fa5s.save', color=icon_color), "Save As", self)
+        exit_action = QAction(qta.icon('fa5s.sign-out-alt', color=icon_color), "Exit", self)
         exit_action.setShortcut("Ctrl+Q")
         exit_action.triggered.connect(self.close)
 
@@ -74,15 +81,15 @@ class MainWindow(QMainWindow):
         # Edit Menu
         edit_menu = menu_bar.addMenu("Edit")
 
-        undo_action = QAction(qta.icon('fa5s.undo', color=self.icon_color), "Undo", self)
+        undo_action = QAction(qta.icon('fa5s.undo', color=icon_color), "Undo", self)
         undo_action.setShortcut("Ctrl+Z")
-        redo_action = QAction(qta.icon('fa5s.redo', color=self.icon_color), "Redo", self)
+        redo_action = QAction(qta.icon('fa5s.redo', color=icon_color), "Redo", self)
         redo_action.setShortcut("Ctrl+Y")
-        cut_action = QAction(qta.icon('fa5s.cut', color=self.icon_color), "Cut", self)
+        cut_action = QAction(qta.icon('fa5s.cut', color=icon_color), "Cut", self)
         cut_action.setShortcut("Ctrl+X")
-        copy_action = QAction(qta.icon('fa5s.copy', color=self.icon_color), "Copy", self)
+        copy_action = QAction(qta.icon('fa5s.copy', color=icon_color), "Copy", self)
         copy_action.setShortcut("Ctrl+C")
-        paste_action = QAction(qta.icon('fa5s.paste', color=self.icon_color), "Paste", self)
+        paste_action = QAction(qta.icon('fa5s.paste', color=icon_color), "Paste", self)
         paste_action.setShortcut("Ctrl+V")
 
         edit_menu.addAction(undo_action)
@@ -95,14 +102,15 @@ class MainWindow(QMainWindow):
         # Settings Menu
         settings_menu = menu_bar.addMenu("Settings")
 
-        preferences_action = QAction(qta.icon('fa5s.cog', color=self.icon_color), "Preferences", self)
+        preferences_action = QAction(qta.icon('fa5s.cog', color=icon_color), "Preferences", self)
+        preferences_action.triggered.connect(self.show_settings_dialog)
 
         settings_menu.addAction(preferences_action)
 
         # Help Menu
         help_menu = menu_bar.addMenu("Help")
 
-        about_action = QAction(qta.icon('fa5s.info-circle', color=self.icon_color), "About", self)
+        about_action = QAction(qta.icon('fa5s.info-circle', color=icon_color), "About", self)
         about_action.triggered.connect(self.show_about_dialog)
 
         help_menu.addAction(about_action)
@@ -135,6 +143,12 @@ class MainWindow(QMainWindow):
     def show_about_dialog(self):
         QMessageBox.about(self, "About", "This is a sample application with a menu bar created using PySide6.")
 
+    def show_settings_dialog(self):
+        settings = model.SettingsModel()
+        view_model = viewmodel.SettingsViewModel(settings)
+        dialog = view.SettingsDialog(view_model)
+        dialog.exec()
+
     def on_item_selected(self, current: QModelIndex, previous: QModelIndex):
         index = current.row()
         self.content_view.display_content(self.view_models[index].get_content())
@@ -145,12 +159,17 @@ class MainWindow(QMainWindow):
             icon = QIcon(view_model.get_icon_path())
             self.left_pane_view.setIndexWidget(self.model.index(index, 0), IconLabel("fa.scissors", "Slicer Limit:"))
 
+    def on_about_to_quit(self):
+        self.drive_model.stop()
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
-    theme = view.themes.DarkTheme(app)
-    window = MainWindow()
+    #theme = view.themes.DarkTheme(app)
+    theme = view.themes.LightTheme(app)
+    window = MainWindow(theme)
+    app.aboutToQuit.connect(window.on_about_to_quit)
     window.show()
     theme.apply()
     sys.exit(app.exec())
