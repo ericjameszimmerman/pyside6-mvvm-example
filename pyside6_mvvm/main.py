@@ -34,16 +34,23 @@ class MainWindow(QMainWindow):
         
         # List Model
         self.items = [
-            model.ItemModel("Drive Simulator", "icons/fruit.png", "simulator"),
-            model.ItemModel("Item 2", "icons/flag.png", "dummy1"),
-            model.ItemModel("Item 3", "icons/hamburger.png", "dummy2")
+            model.ItemModel("Drive Simulator", "fa.scissors", "simulator"),
+            model.ItemModel("Rich Text", "fa.copy", "richtext"),
+            model.ItemModel("Dummy", "fa.paste", "dummy2")
         ]
-        self.view_models = [viewmodel.ItemViewModel(item) for item in self.items]
-        self.model = QStringListModel([vm.get_name() for vm in self.view_models])
+
+        # Create the ViewModel
+        list_viewmodel = viewmodel.ItemListViewModel(self.items)
+
+        # Create the LeftPaneView view
+        self.left_pane_view = view.LeftPaneView(list_viewmodel)
+
+        #self.view_models = [viewmodel.ItemViewModel(item) for item in self.items]
+        #self.model = QStringListModel([vm.get_name() for vm in self.view_models])
         
         # Left Pane: List View
-        self.left_pane_view = view.LeftPaneView()
-        self.left_pane_view.setModel(self.model)
+        #self.left_pane_view = view.LeftPaneView()
+        #self.left_pane_view.setModel(self.model)
         main_layout.addWidget(self.left_pane_view)
 
         self.initialize_views()
@@ -55,7 +62,7 @@ class MainWindow(QMainWindow):
         menu_bar = self.menuBar()
 
         # File Menu
-        file_menu = menu_bar.addMenu("File")
+        file_menu = menu_bar.addMenu("&File")
 
         new_action = QAction(qta.icon('fa5s.file', color=icon_color), "New", self)
         new_action.setShortcut("Ctrl+N")
@@ -76,7 +83,7 @@ class MainWindow(QMainWindow):
         file_menu.addAction(exit_action)
 
         # Edit Menu
-        edit_menu = menu_bar.addMenu("Edit")
+        edit_menu = menu_bar.addMenu("&Edit")
 
         undo_action = QAction(qta.icon('fa5s.undo', color=icon_color), "Undo", self)
         undo_action.setShortcut("Ctrl+Z")
@@ -131,11 +138,6 @@ class MainWindow(QMainWindow):
         # Connect selection change signal to the view model
         self.left_pane_view.selectionModel().currentChanged.connect(self.on_item_selected)
 
-        # Set icons for list items
-        self.update_icons()
-
-        # Initialize the right pane with the first item's content
-        self.left_pane_view.setCurrentIndex(self.model.index(0, 0))
 
     def initialize_views(self):
         self.drive_model = model.MotorDriveModel()
@@ -144,12 +146,18 @@ class MainWindow(QMainWindow):
         self.view_lookup["simulator"] = simulator
         self.stacked_widget.addWidget(simulator)
 
-        self.dummy1 = model.DummyModel()
-        self.dummy1.data = "Eric is Cool"
-        dummy1_viewmodel = viewmodel.DummyViewModel(self.dummy1)
-        dummy1_view = view.DummyView(dummy1_viewmodel)
-        self.view_lookup["dummy1"] = dummy1_view
-        self.stacked_widget.addWidget(dummy1_view)
+        self.rich_model = model.RichTextModel()
+        rich_viewmodel = viewmodel.RichTextViewModel(self.rich_model)
+        rich_view = view.RichTextView(rich_viewmodel)
+        self.view_lookup["richtext"] = rich_view
+        self.stacked_widget.addWidget(rich_view)
+
+        #self.dummy1 = model.DummyModel()
+        #self.dummy1.data = "Eric is Cool"
+        #dummy1_viewmodel = viewmodel.DummyViewModel(self.dummy1)
+        #dummy1_view = view.DummyView(dummy1_viewmodel)
+        #self.view_lookup["dummy1"] = dummy1_view
+        #self.stacked_widget.addWidget(dummy1_view)
 
         self.dummy2 = model.DummyModel()
         self.dummy2.data = "Dummy 2"
@@ -169,18 +177,13 @@ class MainWindow(QMainWindow):
 
     def on_item_selected(self, current: QModelIndex, previous: QModelIndex):
         index = current.row()
-        selected_view_model = self.view_models[index]
-        if selected_view_model:
-            view_id = selected_view_model.get_view_id()
+        selected_model = self.left_pane_view.get_selected_model()
+        if selected_model:
+            view_id = selected_model.view_id
             view_ref = self.view_lookup[view_id]
             if view_ref:
                 self.stacked_widget.setCurrentWidget(view_ref)
-            self.status_bar.showMessage(f"Selected {selected_view_model.get_name()}")
-
-    def update_icons(self):
-        for index, view_model in enumerate(self.view_models):
-            icon = QIcon(view_model.get_icon_path())
-            self.left_pane_view.setIndexWidget(self.model.index(index, 0), IconLabel("fa.scissors", "Slicer Limit:"))
+            self.status_bar.showMessage(f"Selected {selected_model.name}")
 
     def on_about_to_quit(self):
         self.drive_model.stop()
@@ -189,8 +192,8 @@ class MainWindow(QMainWindow):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
-    #theme = view.themes.DarkTheme(app)
-    theme = view.themes.LightTheme(app)
+    theme = view.themes.DarkTheme(app)
+    #theme = view.themes.LightTheme(app)
     window = MainWindow(theme)
     app.aboutToQuit.connect(window.on_about_to_quit)
     window.show()
