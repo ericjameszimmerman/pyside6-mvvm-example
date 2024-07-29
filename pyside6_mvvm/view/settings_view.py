@@ -23,21 +23,25 @@ class SettingsDialog(QDialog):
         self.theme_label = QLabel("Theme")
         self.theme_dropdown = QComboBox()
         self.theme_dropdown.addItems(["Light", "Dark"])
+        self.theme_dropdown.setCurrentText(self._viewmodel.theme)
         self.theme_dropdown.currentTextChanged.connect(self._viewmodel.setTheme)
 
         # Debug Mode
         self.debug_label = QLabel("Debug Mode")
         self.debug_checkbox = QCheckBox()
+        self.debug_checkbox.setChecked(self._viewmodel.debugMode)
         self.debug_checkbox.toggled.connect(self._viewmodel.setDebugMode)
 
         # Font Family
         self.font_label = QLabel("Font Family")
         self.font_input = QLineEdit()
+        self.font_input.setText(self._viewmodel.fontFamily)
         self.font_input.textChanged.connect(self._viewmodel.setFontFamily)
 
         # Tab Size
         self.tab_size_label = QLabel("Tab Size")
         self.tab_size_input = QSpinBox()
+        self.tab_size_input.setValue(self._viewmodel.tabSize)
         self.tab_size_input.setRange(1, 16)
         self.tab_size_input.valueChanged.connect(self._viewmodel.setTabSize)
 

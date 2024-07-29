@@ -15,6 +15,7 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QMessageBox,
     QStackedWidget,
+    QDialog,
 )
 import sys
 import model
@@ -24,12 +25,13 @@ from view.widget import IconLabel
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, theme):
+    def __init__(self, theme, settings):
         super().__init__()
 
         self.setWindowTitle("MVVM Example with PySide6")
         self.resize(800, 600)
         self.theme = theme
+        self.settings = settings
         icon_color = self.theme.default_text_color
 
         # Create the QStackedWidget to hold the views
@@ -45,9 +47,10 @@ class MainWindow(QMainWindow):
 
         # List Model
         self.items = [
-            model.ItemModel("Drive Simulator", "fa.scissors", "simulator"),
-            model.ItemModel("Rich Text", "fa.copy", "richtext"),
-            model.ItemModel("Dummy", "fa.paste", "dummy2"),
+            model.ItemModel("Drive Simulator", "fa5s.tachometer-alt", "simulator"),
+            model.ItemModel("Rich Text", "fa5s.pen-fancy", "richtext"),
+            model.ItemModel("Dummy", "fa5s.carrot", "dummy2"),
+            model.ItemModel("Controls Demo", "fa5s.sliders-h", "controlsdemo"),
         ]
 
         # Create the ViewModel
@@ -164,6 +167,12 @@ class MainWindow(QMainWindow):
         self.view_lookup["dummy2"] = dummy2_view
         self.stacked_widget.addWidget(dummy2_view)
 
+        self.control_model = model.ControlModel()
+        control_viewmodel = viewmodel.ControlViewModel(self.control_model)
+        control_view = view.ControlView(control_viewmodel)
+        self.view_lookup["controlsdemo"] = control_view
+        self.stacked_widget.addWidget(control_view)
+
     def show_about_dialog(self):
         QMessageBox.about(
             self,
@@ -172,10 +181,15 @@ class MainWindow(QMainWindow):
         )
 
     def show_settings_dialog(self):
-        settings = model.SettingsModel()
-        view_model = viewmodel.SettingsViewModel(settings)
+        view_model = viewmodel.SettingsViewModel(self.settings)
         dialog = view.SettingsDialog(view_model)
-        dialog.exec()
+        result = dialog.exec()
+
+        if result == QDialog.Accepted:
+            print("OK was clicked")
+            self.settings.save_settings()
+        elif result == QDialog.Rejected:
+            print("Cancel was clicked")
 
     def on_item_selected(self, current: QModelIndex, previous: QModelIndex):
         index = current.row()
@@ -194,9 +208,12 @@ class MainWindow(QMainWindow):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
-    # theme = view.themes.DarkTheme(app)
-    theme = view.themes.LightTheme(app)
-    window = MainWindow(theme)
+    settings = model.SettingsModel()
+    if settings.theme == "Dark":
+        theme = view.themes.DarkTheme(app)
+    else:
+        theme = view.themes.LightTheme(app)
+    window = MainWindow(theme, settings)
     app.aboutToQuit.connect(window.on_about_to_quit)
     window.show()
     theme.apply()

@@ -34,11 +34,11 @@ class RichTextView(QWidget):
         underline_action.triggered.connect(lambda: self._viewmodel.formatText("underline"))
         toolbar.addAction(underline_action)
 
-        increase_font_action = QAction(qta.icon("fa.plus"), "", self)
+        increase_font_action = QAction(qta.icon("mdi.format-font-size-increase"), "", self)
         increase_font_action.triggered.connect(self._viewmodel.increaseFontSize)
         toolbar.addAction(increase_font_action)
 
-        decrease_font_action = QAction(qta.icon("fa.minus"), "", self)
+        decrease_font_action = QAction(qta.icon("mdi.format-font-size-decrease"), "", self)
         decrease_font_action.triggered.connect(self._viewmodel.decreaseFontSize)
         toolbar.addAction(decrease_font_action)
 

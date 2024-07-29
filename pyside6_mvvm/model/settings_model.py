@@ -1,4 +1,5 @@
 from PySide6.QtCore import QObject, Property, Signal
+from .settings_manager import SettingsManager
 
 
 class SettingsModel(QObject):
@@ -9,10 +10,18 @@ class SettingsModel(QObject):
 
     def __init__(self):
         super().__init__()
-        self._theme = "Light"
-        self._debug_mode = False
-        self._font_family = "Arial"
-        self._tab_size = 4
+        self.settings_manager = SettingsManager()
+        self._theme = self.settings_manager.get("theme", "Light")
+        self._debug_mode = True if self.settings_manager.get("debug-mode", False) else False
+        self._font_family = self.settings_manager.get("font-family", "Arial")
+        self._tab_size = int(self.settings_manager.get("tab-size", 4))
+
+    def save_settings(self):
+        self.settings_manager.set("theme", self._theme)
+        self.settings_manager.set("debug-mode", self._debug_mode)
+        self.settings_manager.set("font-family", self._font_family)
+        self.settings_manager.set("tab-size", self._tab_size)
+        self.settings_manager.save_settings()
 
     @Property(str, notify=themeChanged)
     def theme(self):

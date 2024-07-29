@@ -3,3 +3,4 @@ from .motor_drive_view_model import MotorDriveViewModel
 from .dummy_viewmodel import DummyViewModel
 from .rich_text_viewmodel import RichTextViewModel
 from .item_list_viewmodel import ItemListViewModel
+from .control_viewmodel import ControlViewModel
