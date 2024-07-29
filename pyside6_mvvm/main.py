@@ -207,6 +207,10 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    
+    # Set the application icon
+    app.setWindowIcon(QIcon('app.ico'))
+
     app.setStyle("Fusion")
     settings = model.SettingsModel()
     if settings.theme == "Dark":
